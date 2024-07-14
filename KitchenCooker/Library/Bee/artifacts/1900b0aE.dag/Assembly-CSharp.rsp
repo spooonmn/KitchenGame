@@ -370,8 +370,10 @@
 "Assets/PlayerInputActions.cs"
 "Assets/Scripts/ClearCounter.cs"
 "Assets/Scripts/GameInput.cs"
+"Assets/Scripts/KitchenObjectSO.cs"
 "Assets/Scripts/Player.cs"
 "Assets/Scripts/PlayerAnimator.cs"
+"Assets/Scripts/SelectedCounterVisual.cs"
 -langversion:9.0
 /deterministic
 /optimize+

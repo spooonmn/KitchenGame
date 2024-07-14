@@ -1,9 +1,20 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class Player : MonoBehaviour
 {
+   
+    public static Player Instance { get; private set; } //property
+
+    public event EventHandler<OnSelectedCounterChangedEventArgs> OnSelectedCounterChanged;
+    public class OnSelectedCounterChangedEventArgs : EventArgs
+    {
+        public ClearCounter selectedCounter;
+    }
+
     [SerializeField] private float moveSpeed = 7f;
     [SerializeField] private float rotationSpeed = 10f;
     [SerializeField] private GameInput gameInput;
@@ -11,6 +22,29 @@ public class Player : MonoBehaviour
 
     private bool isWalking;
     private Vector3 lastInteractLocation;
+    private ClearCounter selectedCounter;
+
+    private void Awake()
+    {
+        if (Instance != null)
+        {
+            Debug.LogError("More than one player instance");
+        }
+        Instance = this;
+    }
+
+    private void Start()
+    {
+        gameInput.OnInteractAction += GameInput_OnInteractAction;
+    }
+
+    private void GameInput_OnInteractAction(object sender, System.EventArgs e)
+    {
+        if (selectedCounter != null)
+        {
+            selectedCounter.Interact();
+        }
+    }
 
     private void Update()
     {
@@ -39,10 +73,18 @@ public class Player : MonoBehaviour
         {
            if (raycastHit.collider.TryGetComponent(out ClearCounter clearCounter))
             {
-                clearCounter.Interact();
+                //clearCounter.Interact();
+                if (clearCounter != selectedCounter)
+                {
+                    // calling the event with the class containing the selected counter
+                    SetSelectedCounter(clearCounter);
+                }
             }
         }
-
+        else
+        {
+            SetSelectedCounter(null);
+        }
 
     }
     private void HandleMovement() 
@@ -90,4 +132,9 @@ public class Player : MonoBehaviour
     }
 
 
+    private void SetSelectedCounter(ClearCounter clearCounter)
+    {
+        this.selectedCounter = clearCounter;
+        OnSelectedCounterChanged?.Invoke(this, new OnSelectedCounterChangedEventArgs { selectedCounter = selectedCounter });
+    }
 }
