@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class Player : MonoBehaviour
+public class Player : MonoBehaviour, IKitchenObjectParent
 {
    
     public static Player Instance { get; private set; } //property
@@ -12,7 +12,7 @@ public class Player : MonoBehaviour
     public event EventHandler<OnSelectedCounterChangedEventArgs> OnSelectedCounterChanged;
     public class OnSelectedCounterChangedEventArgs : EventArgs
     {
-        public ClearCounter selectedCounter;
+        public IKitchenObjectParent selectedCounter;
     }
 
     [SerializeField] private float moveSpeed = 7f;
@@ -42,7 +42,7 @@ public class Player : MonoBehaviour
     {
         if (selectedCounter != null)
         {
-            selectedCounter.Interact();
+            selectedCounter.Interact(this);
         }
     }
 
@@ -136,5 +136,32 @@ public class Player : MonoBehaviour
     {
         this.selectedCounter = clearCounter;
         OnSelectedCounterChanged?.Invoke(this, new OnSelectedCounterChangedEventArgs { selectedCounter = selectedCounter });
+    }
+
+
+
+    public Transform GetKitchObjectFollowTransform()
+    {
+        throw new NotImplementedException();
+    }
+
+    public void SetKitchenObject(KitchenObject kitchenObject)
+    {
+        throw new NotImplementedException();
+    }
+
+    public KitchenObject GetKitchenObject()
+    {
+        throw new NotImplementedException();
+    }
+
+    public void ClearKitchenObject()
+    {
+        throw new NotImplementedException();
+    }
+
+    public bool HasKitchenObject()
+    {
+        throw new NotImplementedException();
     }
 }
