@@ -12,17 +12,22 @@ public class Player : MonoBehaviour, IKitchenObjectParent
     public event EventHandler<OnSelectedCounterChangedEventArgs> OnSelectedCounterChanged;
     public class OnSelectedCounterChangedEventArgs : EventArgs
     {
-        public IKitchenObjectParent selectedCounter;
+        public BaseCounter selectedCounter;
     }
 
     [SerializeField] private float moveSpeed = 7f;
     [SerializeField] private float rotationSpeed = 10f;
     [SerializeField] private GameInput gameInput;
     [SerializeField] private LayerMask countersLayerMask;
+    [SerializeField] private Transform KitchenObjectHoldPoint;
+
+
 
     private bool isWalking;
     private Vector3 lastInteractLocation;
-    private ClearCounter selectedCounter;
+    private BaseCounter selectedCounter;
+    private KitchenObject kitchenObject;
+
 
     private void Awake()
     {
@@ -36,6 +41,15 @@ public class Player : MonoBehaviour, IKitchenObjectParent
     private void Start()
     {
         gameInput.OnInteractAction += GameInput_OnInteractAction;
+        gameInput.OnInteractAlternateAction += GameInput_OnInteractAlternateAction;
+    }
+
+    private void GameInput_OnInteractAlternateAction(object sender, EventArgs e)
+    {
+        if (selectedCounter != null)
+        {
+            selectedCounter.InteractAlternate(this);
+        }
     }
 
     private void GameInput_OnInteractAction(object sender, System.EventArgs e)
@@ -71,13 +85,13 @@ public class Player : MonoBehaviour, IKitchenObjectParent
 
         if (Physics.Raycast(transform.position, lastInteractLocation, out RaycastHit raycastHit, interactDistance, countersLayerMask ))
         {
-           if (raycastHit.collider.TryGetComponent(out ClearCounter clearCounter))
+           if (raycastHit.collider.TryGetComponent(out BaseCounter baseCounter))
             {
                 //clearCounter.Interact();
-                if (clearCounter != selectedCounter)
+                if (baseCounter != selectedCounter)
                 {
                     // calling the event with the class containing the selected counter
-                    SetSelectedCounter(clearCounter);
+                    SetSelectedCounter(baseCounter);
                 }
             }
         }
@@ -104,7 +118,7 @@ public class Player : MonoBehaviour, IKitchenObjectParent
 
             //attempy only x movement
             Vector3 moveDirX = new Vector3(moveDir.x, 0f, 0f).normalized;
-            canMove = !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * playerHeight, playerRadius, moveDirX, moveDistance);
+            canMove = moveDir.x !=0 && !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * playerHeight, playerRadius, moveDirX, moveDistance);
             if (canMove)
             {
                 //can only move on x axis
@@ -114,7 +128,7 @@ public class Player : MonoBehaviour, IKitchenObjectParent
             {
                 //attempt only z movement
                 Vector3 moveDirZ = new Vector3(0f, 0f, moveDir.z).normalized;
-                canMove = !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * playerHeight, playerRadius, moveDirZ, moveDistance);
+                canMove = moveDir.z != 0 &&!Physics.CapsuleCast(transform.position, transform.position + Vector3.up * playerHeight, playerRadius, moveDirZ, moveDistance);
                 if (canMove)
                 {
                     //can only move on x axis
@@ -132,9 +146,9 @@ public class Player : MonoBehaviour, IKitchenObjectParent
     }
 
 
-    private void SetSelectedCounter(ClearCounter clearCounter)
+    private void SetSelectedCounter(BaseCounter selectedCounter)
     {
-        this.selectedCounter = clearCounter;
+        this.selectedCounter = selectedCounter;
         OnSelectedCounterChanged?.Invoke(this, new OnSelectedCounterChangedEventArgs { selectedCounter = selectedCounter });
     }
 
@@ -142,26 +156,26 @@ public class Player : MonoBehaviour, IKitchenObjectParent
 
     public Transform GetKitchObjectFollowTransform()
     {
-        throw new NotImplementedException();
+        return KitchenObjectHoldPoint;
     }
 
     public void SetKitchenObject(KitchenObject kitchenObject)
     {
-        throw new NotImplementedException();
+        this.kitchenObject = kitchenObject;
     }
 
     public KitchenObject GetKitchenObject()
     {
-        throw new NotImplementedException();
+        return kitchenObject;
     }
 
     public void ClearKitchenObject()
     {
-        throw new NotImplementedException();
+        kitchenObject = null;
     }
 
     public bool HasKitchenObject()
     {
-        throw new NotImplementedException();
+        return kitchenObject != null;
     }
 }
