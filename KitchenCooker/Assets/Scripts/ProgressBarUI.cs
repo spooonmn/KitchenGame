@@ -6,34 +6,55 @@ using UnityEngine.UI;
 
 public class ProgressBarUI : MonoBehaviour
 {
-
+    [SerializeField] private GameObject hasProgressGameObject;
     [SerializeField] private Image barImage;
 
-    [SerializeField] private CuttingCounter cuttingCounter;
-
+     private IHasProgress hasProgress;
+    private enum Type
+    {
+        Stepped,
+        Smooth,
+    }
+    [SerializeField] private Type type;
 
     private void Start()
     {
-        cuttingCounter.OnProgressChanged += CuttingCounter_OnProgressChanged;
-        cuttingCounter.OnKitchenObjectRemoved += CuttingCounter_OnKitchenObjectRemoved;
+        hasProgress = hasProgressGameObject.GetComponent<IHasProgress>();
+        if (hasProgress == null)
+        {
+            Debug.LogError("GameObject" + hasProgressGameObject + "dosent impliment iHasProgress");
+        }
+        hasProgress.OnProgressChanged += HasProgress_OnProgressChanged;
+        hasProgress.OnKitchenObjectRemoved += HasProgress_OnKitchenObjectRemoved;
 
         barImage.fillAmount = 0;
         Hide();
     }
 
-    private void CuttingCounter_OnKitchenObjectRemoved(object sender, EventArgs e)
+    private void HasProgress_OnKitchenObjectRemoved(object sender, EventArgs e)
     {
         barImage.fillAmount = 0;
         Hide();
     }
 
-    private void CuttingCounter_OnProgressChanged(object sender, CuttingCounter.OnProgressChangedEventArgs e)
+    private void HasProgress_OnProgressChanged(object sender, IHasProgress.OnProgressChangedEventArgs e)
     {
         Show();
-        // Stop any existing coroutine to avoid multiple coroutines running at the same time
-        StopAllCoroutines();
-        // Start the lerping coroutine
-        StartCoroutine(LerpFillAmount(e.progressNormalized));
+        
+        switch (type)
+        {
+            case Type.Stepped:
+                barImage.fillAmount = e.progressNormalized;
+                break;
+            case Type.Smooth:
+                // Stop any existing coroutine to avoid multiple coroutines running at the same time
+                StopAllCoroutines();
+                // Start the lerping coroutine
+                StartCoroutine(LerpFillAmount(e.progressNormalized));
+                break;
+        }
+        
+
     }
     private IEnumerator LerpFillAmount(float targetFillAmount)
     {
