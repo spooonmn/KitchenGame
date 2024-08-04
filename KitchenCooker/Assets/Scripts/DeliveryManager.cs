@@ -16,7 +16,10 @@ public class DeliveryManager : MonoBehaviour
     private List<RecipeSO> waitingRecipeList;
 
 
+
     [SerializeField]private RecipeListSO recipeListSO;
+
+    private int deliveredRecipes;
 
 
     private float spawnRecipeTimer;
@@ -79,9 +82,13 @@ public class DeliveryManager : MonoBehaviour
                 }
                 if(plateContentsMatchesRecipe)
                 {// player delivered the correct recipe
+                    
+                    deliveredRecipes++;
                     waitingRecipeList.RemoveAt(i);
                     OnRecipeCompleted?.Invoke(this, EventArgs.Empty);
                     OnRecipeSucess?.Invoke(this, EventArgs.Empty);
+
+                    
                     return;
                     
                 }
@@ -96,6 +103,11 @@ public class DeliveryManager : MonoBehaviour
     public List<RecipeSO> GetWaitingRecipeSOList() 
     {
         return waitingRecipeList;
+    }
+
+    public int GetDeliveredRecipes()
+    {
+        return deliveredRecipes;
     }
 }
 

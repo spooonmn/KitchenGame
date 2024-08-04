@@ -11,6 +11,9 @@ public class SoundManager : MonoBehaviour
 
     [SerializeField] private AudioClipListSO audioClipList;
 
+    private float volume = 1f;
+
+
     private void Awake()
     {
         
@@ -62,18 +65,33 @@ public class SoundManager : MonoBehaviour
         DeliveryCounter deliveryCounter = DeliveryCounter.Instance;
         PlaySound(audioClipList.DeliverySuccess, deliveryCounter.transform.position);
     }
-    private void PlaySound(AudioClip audioClip, Vector3 position, float volume = 1f)
+    private void PlaySound(AudioClip audioClip, Vector3 position, float volumeMultiplier = 1f)
     {
-        AudioSource.PlayClipAtPoint(audioClip, position, volume);
+        AudioSource.PlayClipAtPoint(audioClip, position, volumeMultiplier * volume);
 
     }
-    private void PlaySound(AudioClip[] audioClipArrey, Vector3 position, float volume = 1f)
+    private void PlaySound(AudioClip[] audioClipArrey, Vector3 position, float volumeMultiplier = 1f)
     {
-        PlaySound(audioClipArrey[UnityEngine.Random.Range(0,audioClipArrey.Length)], position, volume);
+        PlaySound(audioClipArrey[UnityEngine.Random.Range(0,audioClipArrey.Length)], position, volumeMultiplier * volume);
     }
 
-    public void PlayFootStepSound(Vector3 position, float volume)
+    public void PlayFootStepSound(Vector3 position, float volumeMultiplier)
     {
-        PlaySound(audioClipList.FootStep1AudioList, position,volume);
+        PlaySound(audioClipList.FootStep1AudioList, position,volumeMultiplier);
+    }
+
+    public void ChangeVolume()
+    {
+        volume += .1f;
+
+        if (volume > 1f)
+        {
+            volume = 0f;
+        }
+    }
+
+    public float GetVolume()
+    {
+        return volume;
     }
 }
